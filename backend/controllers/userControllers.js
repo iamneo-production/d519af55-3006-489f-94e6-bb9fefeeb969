@@ -50,7 +50,9 @@ const userCtrl = {
       con.getConnection( async (err, connection) => {
         if (err) throw (err)
         const sqlSearch = "SELECT * FROM UserModel WHERE email = ? and password=?"
+        const trainerSearch = "SELECT * FROM trainers WHERE email = ? and password=?"
         const search_query = mysql.format(sqlSearch,[email,password])
+        const search_query2 = mysql.format(trainerSearch,[email,password])
         // ? will be replaced by values
         // ?? will be replaced by string
         await connection.query (search_query, async (err, result) => {
@@ -59,10 +61,17 @@ const userCtrl = {
           connection.release()
           res.json({role: result[0].role, msg: "login successfull!"}) 
          } 
-         else {
-          res.status(400).json({msg: "Email or password is incorrect!"})
-        }
       })
+      await connection.query (search_query2, async (err, result) => {
+        if (err) throw (err)
+        if (result.length != 0) {
+         connection.release()
+         res.json({role: "trainer", msg: "login successfull!"}) 
+        }
+        else{
+          res.status(400).json({msg: "email or password is incorrect!"}) 
+        } 
+     })
     })
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -101,7 +110,7 @@ const userCtrl = {
           res.status(409).json({msg: "Email is not valid!"})
         const sqlSearch = "SELECT * FROM trainers WHERE email = ?"
         const search_query = mysql.format(sqlSearch,[email])
-        const sqlInsert = "INSERT INTO trainers(name, email, experience, password, shopname) VALUES (?,?,?,?,?)"
+        const sqlInsert = "INSERT INTO trainers(name, email, experience, shopname, password) VALUES (?,?,?,?,?)"
         const insert_query = mysql.format(sqlInsert,[name, email, experience, shopname, password]);
         // ? will be replaced by values
         // ?? will be replaced by string
@@ -127,34 +136,66 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-  updateTrainer: async () => {
+  updateTrainer: async (req,res) => {
     try {
       const { name, email, password, experience, shopname } = req.body;
-
+      
       con.getConnection( async (err, connection) => {
         if (err) throw (err)
         if(!validateEmail(email))
           res.status(409).json({msg: "Email is not valid!"})
-        const sqlSearch = "SELECT * FROM trainers WHERE email = ?"
-        const search_query = mysql.format(sqlSearch,[email])
-        const sqlInsert = "INSERT INTO trainers(name, email, experience, password, shopname) VALUES (?,?,?,?,?)"
-        const insert_query = mysql.format(sqlInsert,[name, email, experience, shopname, password]);
+        const sqlSearch = "SELECT * FROM trainers WHERE id = ?"
+        const search_query = mysql.format(sqlSearch,[req.params.id])
+        const sqlInsert = "update trainers set name=?, email=?, experience=?, password=?, shopname=? where id=?;"
+        const insert_query = mysql.format(sqlInsert,[name, email, experience, password,shopname,req.params.id]);
         // ? will be replaced by values
         // ?? will be replaced by string
         await connection.query (search_query, async (err, result) => {
          if (err) throw (err)
         
-         if (result.length != 0) {
+         if (result.length === 0) {
           connection.release()
-          res.status(409).json({msg: "trainer already exists."}) 
+          res.status(409).json({msg: "trainer not found."}) 
          } 
          else {
           await connection.query (insert_query, (err, result)=> {
           connection.release()
           if (err) throw (err)
-          console.log ("--------> Created new trainer")
+          console.log ("--------> trainer updated")
           console.log(result.insertId)
-          res.status(201).json({msg: "new trainer added successfully!"})
+          res.status(201).json({msg: "trainer updated successfully!"})
+         })
+        }
+      })
+    })
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  deleteTrainer: async (req,res) => {
+    try {
+      con.getConnection( async (err, connection) => {
+        if (err) throw (err)
+        const sqlSearch = "SELECT * FROM trainers WHERE id = ?"
+        const search_query = mysql.format(sqlSearch,[req.params.id])
+        const sqldelete = "delete from trainers where id=?;"
+        const delete_query = mysql.format(sqldelete,[req.params.id]);
+        // ? will be replaced by values
+        // ?? will be replaced by string
+        await connection.query (search_query, async (err, result) => {
+         if (err) throw (err)
+        
+         if (result.length === 0) {
+          connection.release()
+          res.status(409).json({msg: "trainer not found."}) 
+         } 
+         else {
+          await connection.query (delete_query, (err, result)=> {
+          connection.release()
+          if (err) throw (err)
+          console.log ("--------> trainer deleted")
+          console.log(result.insertId)
+          res.status(201).json({msg: "trainer deleted successfully!"})
          })
         }
       })
