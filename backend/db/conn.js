@@ -7,4 +7,6 @@ var connection = mysql.createPool({
   database: "PetPerfect"
 });
 
+connection.query("create database PetPerfect", )
+
 module.exports = connection;

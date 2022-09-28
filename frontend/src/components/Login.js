@@ -108,7 +108,9 @@ function Login() {
         </Form>
         <p className="mb-0 mt-2">
           New Customer?{" "}
-         
+          <Link to="/signup" className="text-decoration-none">
+            signup
+          </Link>
         </p>
        
       </div>
