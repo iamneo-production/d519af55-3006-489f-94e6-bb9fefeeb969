@@ -204,6 +204,76 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
+  createBooking: async (req,res) => {
+    try {
+      const { bookingid, clientid, trainerid, lawfirmName, date, bookingStatus} = req.body;
+
+      con.getConnection( async (err, connection) => {
+        if (err) throw (err)
+        const sqlSearch = "SELECT * FROM booking WHERE bookingid = ?"
+        const search_query = mysql.format(sqlSearch,[bookingid])
+        const sqlInsert = "INSERT INTO booking VALUES (?,?,?,?,?,?)"
+        const insert_query = mysql.format(sqlInsert,[bookingid, clientid, trainerid, lawfirmName, date, bookingStatus]);
+        // ? will be replaced by values
+        // ?? will be replaced by string
+        await connection.query (search_query, async (err, result) => {
+         if (err) throw (err)
+        
+         if (result.length != 0) {
+          connection.release()
+          res.status(409).json({msg: "booking already exists."}) 
+         } 
+         else {
+          await connection.query (insert_query, (err, result)=> {
+          connection.release()
+          if (err) throw (err)
+          console.log ("--------> Created new booking")
+          console.log(result.insertId)
+          res.status(201).json({msg: "new booking added successfully!"})
+         })
+        }
+      })
+    })
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  deleteBooking: async (req,res) => {
+    try {
+      con.getConnection( async (err, connection) => {
+        if (err) throw (err)
+        const sqlSearch = "SELECT * FROM booking WHERE bookingid = ?"
+        const search_query = mysql.format(sqlSearch,[req.params.id])
+        const sqldelete = "delete from booking where bookingid=?;"
+        const delete_query = mysql.format(sqldelete,[req.params.id]);
+        // ? will be replaced by values
+        // ?? will be replaced by string
+        await connection.query (search_query, async (err, result) => {
+         if (err) throw (err)
+        
+         if (result.length === 0) {
+          connection.release()
+          res.status(409).json({msg: "booking not found."}) 
+         } 
+         else {
+          await connection.query (delete_query, (err, result)=> {
+          connection.release()
+          if (err) throw (err)
+          console.log ("--------> booking deleted")
+          console.log(result.insertId)
+          res.status(201).json({msg: "booking deleted successfully!"})
+         })
+        }
+      })
+    })
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  
 };
 
 function validateEmail(email) {
