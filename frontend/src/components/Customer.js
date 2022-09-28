@@ -30,36 +30,26 @@ export default function Customer() {
     fetchData()
   }, [])
   return (
-    <div className="row">
-      <div className="col-6 mt-5 w-100">
-        <Container>
-          <Row>
-            {err && showErrMsg(err)}
-            {success && showSuccessMsg(success)}
-            {trainers.map((playerData, k) => {
-              return (
-                <Col key={k} xs={12} md={4} lg={3}>
-                  <Card style={{ backgroundColor: "beige" }}>
-
-                    <Card.Body>
-                      <Card.Title>{playerData.name}</Card.Title>
-                      <Card.Text>{playerData.experience}</Card.Text>
-                      <Card.Text>{playerData.shopname}</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              );
-            }
-            )}
-          </Row>
-        </Container>
-      </div>
-      <div className="col-6">
-        <h2 className="text-center">Add/Edit details</h2>
+    <Container>
+      <Row>
         {err && showErrMsg(err)}
         {success && showSuccessMsg(success)}
-       
-      </div>
-    </div>
+        {trainers.map((playerData, k) => {
+          return (
+            <Col key={k} xs={12} md={4} lg={3} style={{marginTop: "10rem"}}>
+              <Card style={{ backgroundColor: "beige" }}>
+
+                <Card.Body>
+                  <Card.Title>{playerData.name}</Card.Title>
+                  <Card.Text>{playerData.experience}</Card.Text>
+                  <Card.Text>{playerData.shopname}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        }
+        )}
+      </Row>
+    </Container>
   );
 }

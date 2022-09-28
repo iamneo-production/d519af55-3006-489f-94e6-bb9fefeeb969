@@ -15,8 +15,8 @@ const userCtrl = {
         if (err) throw (err)
         if(!validateEmail(email))
           res.status(409).json({msg: "Email is not valid!"})
-        const sqlSearch = "SELECT * FROM UserModel WHERE email = ?"
-        const search_query = mysql.format(sqlSearch,[email])
+        const sqlSearch = "SELECT * FROM UserModel WHERE email = ? or mobileNumber = ?"
+        const search_query = mysql.format(sqlSearch,[email], [mobileNumber])
         const sqlInsert = "INSERT INTO UserModel VALUES (?,?,?,?,?,?)"
         const insert_query = mysql.format(sqlInsert,[email, password, username, mobileNumber, active, role]);
         // ? will be replaced by values
