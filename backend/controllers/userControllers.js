@@ -274,6 +274,10 @@ const userCtrl = {
   },
 
   
+
+
+
+  
 };
 
 function validateEmail(email) {

@@ -17,4 +17,5 @@ router.post("/Admin/add", userCtrl.addTrainer);
 router.put("/Admin/update/:id", userCtrl.updateTrainer);
 router.delete("/Admin/remove/:id", userCtrl.deleteTrainer);
 
+
 module.exports = router;
